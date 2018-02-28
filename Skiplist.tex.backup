@@ -1,0 +1,756 @@
+% \documentclass[]{llncs}
+\documentclass[a4paper,12pt]{article}
+
+% \def \lncs {}
+
+\input{Macros.tex}
+
+\usepackage{rotating}
+
+
+% Controlling the margin
+% \usepackage[margin=1.25in]{geometry}
+% \linespread{0.9}
+\bibliographystyle{alpha}
+\pagestyle{plain}
+
+%Local macros
+\newcommandx{\NN}{\mathbb{N}}%Natural numbers
+
+\newcommand{\rbullet}{\color{red} $\bullet$}
+\newcommand{\bbullet}{\color{blue} $\bullet$}
+
+\newcommand{\kpnote}[1]{{\textcolor{green}{KP: #1}}}
+\newcommand{\cknote}[1]{{\textcolor{blue}{CK: #1}}}
+\newcommand{\kknote}[1]{{\textcolor{red}{KK: #1}}}
+\newcommand{\hanote}[1]{{\textcolor{orange}{HA: #1}}}
+
+%opening
+\title{PoSW from Skip List}
+\author{}
+% \institute{}
+
+\begin{document}
+\maketitle
+\begin{abstract}
+\end{abstract}
+
+\section{Introduction}
+  \subsection{PoSW}
+    \begin{enumerate}
+      \item PoSW vs PoW vs Time-lock puzzles
+      \item Original construction from depth-robust graphs
+    \end{enumerate}
+
+  \subsection{Related Work}
+    \begin{enumerate}
+      \item Time-release crypto \cite{RSW00,BGJ+15,May93,MMV11}
+      \item Original construction \cite{MMV13} using depth-robust graphs  \cite{MMV13,EGS75}
+      \item \cite{CP18} construction doesn't require depth-robustness
+    \end{enumerate}
+
+  \subsection{Our Contribution}
+    \begin{enumerate}
+      \item Intuitive construction of POSW based on skip lists \cite{Pug90}
+      \item Larger gap in proof generation and verification using PRPs and sloth hash function \cite{LW17}
+      \item PRP used instead of a hash function and the input to it is squared before
+    \end{enumerate}
+
+  
+\section{Preliminaries}
+  \subsection{Formal Definitions}
+    \begin{enumerate}
+      \item PoSW 
+      \item 
+    \end{enumerate}
+
+  \subsection{Skip list}
+    \begin{enumerate}
+      \item \cite{Pug90}
+      \item randomised \vs deterministic (binary)
+      \item Figure
+    \end{enumerate}
+    
+    \begin{figure}
+      \centering
+      \begin{tikzpicture}[
+	node distance=1.5em,
+	pointer/.style={draw,thick,minimum width=1.5em,minimum height=1.5em},
+	data/.style={draw,thick,minimum width=1.5em,minimum height=1.5em},
+	p/.style={->,thick}]
+	
+	\node[pointer] (01) {$\bullet$};
+	\node[data,right of=01,xshift=1em] (10) {$3$};
+	\node[pointer,right of=10] (11) {$\bullet$};
+	\node[data,right of=11,xshift=1em] (20) {$6$};
+	\node[pointer,right of=20] (21) {$\bullet$};
+	\node[data,right of=21,xshift=1em] (30) {$7$};
+	\node[pointer,right of=30] (31) {$\bullet$};
+	\node[data,right of=31,xshift=1em] (40) {$9$};
+	\node[pointer,right of=40] (41) {$\bullet$};
+	\node[data,right of=41,xshift=1em] (50) {\small $12$};
+	\node[pointer,right of=50] (51) {$\bullet$};
+	\node[data,right of=51,xshift=1em] (60) {\small $17$};
+	\node[pointer,right of=60] (61) {$\bullet$};
+	\node[data,right of=61,xshift=1em] (70) {\small $19$};
+	\node[pointer,right of=70] (71) {$\bullet$};
+	\node[data,right of=71,xshift=1em] (80) {\small $21$};
+	\node[pointer,right of=80] (81) {$\bullet$};
+	\node[data,right of=81,xshift=1em] (90) {\small $25$};
+	\node[pointer,right of=90] (91) {$\bullet$};
+	\node[data,right of=91,xshift=1em] (100) {$\bot$};
+	
+	\foreach \i/\j in {0/1,1/2,2/3,3/4,4/5,5/6,6/7,7/8,8/9,9/10}{
+	  \draw[p] (\i1.center) -> (\j0);
+	}
+      \end{tikzpicture}
+
+      \bigskip
+      
+      \begin{tikzpicture}[
+	rotate=90,
+	pointer/.style={draw,thick,minimum width=1.5em,minimum height=1.5em},
+	data/.style={draw,thick,minimum width=1.5em,minimum height=1.5em},
+	holder/.style={minimum width=1.5em,minimum height=1.5em},
+	p/.style={->,thick},
+	node distance=1.5em]
+	%State 0
+	\node[pointer] (001) {$\bullet$};
+	\node[pointer,above of=001] (011) {$\bullet$};
+	
+	%State 1
+	\node[data,right of=001,xshift=1em] (100) {$3$};
+	\node[pointer,right of=100] (101) {$\bullet$};
+	
+	%State 000010
+	\node[holder,right of=101,xshift=1em] (200) {};
+	\node[holder,above of=200] (210) {};
+	\node[pointer,right of=200] (201) {$\bullet$};
+	\node[pointer,above of=201] (211) {$\bullet$};
+	\node[data,above of=200,minimum height=3em,yshift=-0.75em] (200d) {$6$};
+	
+	
+	%State 3
+	\node[data,right of=201,xshift=1em] (300) {$7$};
+	\node[pointer,right of=300] (301) {$\bullet$};
+	
+	%State 4
+	\node[holder,right of=301,xshift=1em] (400) {};
+	\node[holder,above of=400] (410) {};
+	\node[pointer,right of=400] (401) {$\bullet$};
+	\node[pointer,above of=401] (411) {$\bullet$};
+	\node[data,above of=400,minimum height=3em,yshift=-0.75em] (400d) {$9$};
+
+	%State 5
+	\node[data,right of=401,xshift=1em] (500) {\small $12$};
+	\node[pointer,right of=500] (501) {$\bullet$};
+	
+	%State 6
+	\node[holder,right of=501,xshift=1em] (600) {};
+	\node[holder,above of=600] (610) {};
+	\node[pointer,right of=600] (601) {$\bullet$};
+	\node[pointer,above of=601] (611) {$\bullet$};
+	\node[data,above of=600,minimum height=3em,yshift=-0.75em] (600d) {\small $17$};
+	
+	%State 7
+	\node[data,right of=601,xshift=1em] (700) {\small $19$};
+	\node[pointer,right of=700] (701) {$\bullet$};
+	
+	%State 8
+	\node[holder,right of=701,xshift=1em] (800) {};
+	\node[holder,above of=800] (810) {};
+	\node[pointer,right of=800] (801) {$\bullet$};
+	\node[pointer,above of=801] (811) {$\bullet$};
+	\node[data,above of=800,minimum height=3em,yshift=-0.75em] (800d) {\small $21$};
+	
+	%State 9
+	\node[data,right of=801,xshift=1em] (900) {\small $25$};
+	\node[pointer,right of=900] (901) {$\bullet$};
+	
+	%State 10
+	\node[holder,right of=901,xshift=1em] (1000) {};
+	\node[holder,above of=1000] (1010) {};
+	\node[data,above of=1000,minimum height=3em,yshift=-0.75em] (1000d) {$\bot$};
+
+	%Level 0 edges
+	\foreach \i/\j in {0/1,1/2,2/3,3/4,4/5,5/6,6/7,7/8,8/9,9/10}{
+	  \draw[p] (\i01.center) -> (\j00);
+	}
+	
+	%Level 1 edges
+	\foreach \i/\j in {0/2,2/4,4/6,6/8,8/10}{
+	  \draw[p] (\i11.center)-> (\j10);
+	}
+      \end{tikzpicture}
+      
+      \bigskip
+      
+      \begin{tikzpicture}[
+	rotate=90,
+	pointer/.style={draw,thick,minimum width=1.5em,minimum height=1.5em},
+	data/.style={draw,thick,minimum width=1.5em,minimum height=1.5em},
+	holder/.style={minimum width=1.5em,minimum height=1.5em},
+	p/.style={->,thick},
+	node distance=1.5em]
+	%State 0
+	\node[pointer] (001) {$\bullet$};
+	\node[pointer,above of=001] (011) {$\bullet$};
+	\node[pointer,above of=011] (021) {$\bullet$};
+	
+	%State 1
+	\node[data,right of=001,xshift=1em] (100) {$3$};
+	\node[pointer,right of=100] (101) {$\bullet$};
+	
+	%State 000010
+	\node[holder,right of=101,xshift=1em] (200) {};
+	\node[holder,above of=200] (210) {};
+	\node[pointer,right of=200] (201) {$\bullet$};
+	\node[pointer,above of=201] (211) {$\bullet$};
+	\node[data,above of=200,minimum height=3em,yshift=-0.75em] (200d) {$6$};
+	
+	
+	%State 3
+	\node[data,right of=201,xshift=1em] (300) {$7$};
+	\node[pointer,right of=300] (301) {$\bullet$};
+	
+	%State 4
+	\node[holder,right of=301,xshift=1em] (400) {};
+	\node[holder,above of=400] (410) {};
+	\node[holder,above of=410] (420) {};
+	\node[pointer,right of=400] (401) {$\bullet$};
+	\node[pointer,above of=401] (411) {$\bullet$};
+	\node[pointer,above of=411] (421) {$\bullet$};
+	\node[data,above of=400,minimum height=4.5em] (400d) {$9$};
+
+	%State 5
+	\node[data,right of=401,xshift=1em] (500) {\small $12$};
+	\node[pointer,right of=500] (501) {$\bullet$};
+	
+	%State 6
+	\node[holder,right of=501,xshift=1em] (600) {};
+	\node[holder,above of=600] (610) {};
+	\node[pointer,right of=600] (601) {$\bullet$};
+	\node[pointer,above of=601] (611) {$\bullet$};
+	\node[data,above of=600,minimum height=3em,yshift=-0.75em] (600d) {\small $17$};
+	
+	%State 7
+	\node[data,right of=601,xshift=1em] (700) {\small $19$};
+	\node[pointer,right of=700] (701) {$\bullet$};
+	
+	%State 8
+	\node[holder,right of=701,xshift=1em] (800) {};
+	\node[holder,above of=800] (810) {};
+	\node[holder,above of=810] (820) {};
+	\node[pointer,right of=800] (801) {$\bullet$};
+	\node[pointer,above of=801] (811) {$\bullet$};
+	\node[pointer,above of=811] (821) {$\bullet$};
+	\node[data,above of=800,minimum height=4.5em] (800d) {\small $21$};
+	
+	%State 9
+	\node[data,right of=801,xshift=1em] (900) {\small $25$};
+	\node[pointer,right of=900] (901) {$\bullet$};
+	
+	%State 10
+	\node[holder,right of=901,xshift=1em] (1000) {};
+	\node[holder,above of=1000] (1010) {};
+	\node[holder,above of=1010] (1020) {};
+	\node[data,above of=1000,minimum height=4.5em] (1000d) {$\bot$};
+
+	%Level 0 edges
+	\foreach \i/\j in {0/1,1/2,2/3,3/4,4/5,5/6,6/7,7/8,8/9,9/10}{
+	  \draw[p] (\i01.center) -> (\j00);
+	}
+	
+	%Level 1 edges
+	\foreach \i/\j in {0/2,2/4,4/6,6/8,8/10}{
+	  \draw[p] (\i11.center)-> (\j10);
+	}
+	
+	%Level 2 edges
+	\foreach \i/\j in {0/4,4/8,8/10}{
+	  \draw[p] (\i21.center)-> (\j20);
+	}
+      \end{tikzpicture}
+      
+      \bigskip
+      
+      \begin{tikzpicture}[
+	rotate=90,
+	pointer/.style={draw,thick,minimum width=1.5em,minimum height=1.5em},
+	data/.style={draw,thick,minimum width=1.5em,minimum height=1.5em},
+	holder/.style={minimum width=1.5em,minimum height=1.5em},
+	p/.style={->,thick},
+	node distance=1.5em]
+	%State 0
+	\node[pointer] (001) {$\bullet$};
+	\node[pointer,above of=001] (011) {$\bullet$};
+	\node[pointer,above of=011] (021) {$\bullet$};
+	\node[pointer,above of=021] (031) {$\bullet$};
+	
+	%State 1
+	\node[data,right of=001,xshift=1em] (100) {$3$};
+	\node[pointer,right of=100] (101) {$\bullet$};
+	
+	%State 000010
+	\node[holder,right of=101,xshift=1em] (200) {};
+	\node[holder,above of=200] (210) {};
+	\node[pointer,right of=200] (201) {$\bullet$};
+	\node[pointer,above of=201] (211) {$\bullet$};
+	\node[data,above of=200,minimum height=3em,yshift=-0.75em] (200d) {$6$};
+	
+	
+	%State 3
+	\node[data,right of=201,xshift=1em] (300) {$7$};
+	\node[pointer,right of=300] (301) {$\bullet$};
+	
+	%State 4
+	\node[holder,right of=301,xshift=1em] (400) {};
+	\node[holder,above of=400] (410) {};
+	\node[holder,above of=410] (420) {};
+	\node[pointer,right of=400] (401) {$\bullet$};
+	\node[pointer,above of=401] (411) {$\bullet$};
+	\node[pointer,above of=411] (421) {$\bullet$};
+	\node[data,above of=400,minimum height=4.5em] (400d) {$9$};
+
+	%State 5
+	\node[data,right of=401,xshift=1em] (500) {\small $12$};
+	\node[pointer,right of=500] (501) {$\bullet$};
+	
+	%State 6
+	\node[holder,right of=501,xshift=1em] (600) {};
+	\node[holder,above of=600] (610) {};
+	\node[pointer,right of=600] (601) {$\bullet$};
+	\node[pointer,above of=601] (611) {$\bullet$};
+	\node[data,above of=600,minimum height=3em,yshift=-0.75em] (600d) {\small $17$};
+	
+	%State 7
+	\node[data,right of=601,xshift=1em] (700) {\small $19$};
+	\node[pointer,right of=700] (701) {$\bullet$};
+	
+	%State 8
+	\node[holder,right of=701,xshift=1em] (800) {};
+	\node[holder,above of=800] (810) {};
+	\node[holder,above of=810] (820) {};
+	\node[holder,above of=820] (830) {};
+	\node[pointer,right of=800] (801) {$\bullet$};
+	\node[pointer,above of=801] (811) {$\bullet$};
+	\node[pointer,above of=811] (821) {$\bullet$};
+	\node[pointer,above of=821] (831) {$\bullet$};
+	\node[data,above of=800,minimum height=6em,yshift=0.75em] (800d) {\small $21$};
+	
+	%State 9
+	\node[data,right of=801,xshift=1em] (900) {\small $25$};
+	\node[pointer,right of=900] (901) {$\bullet$};
+	
+	%State 10
+	\node[holder,right of=901,xshift=1em] (1000) {};
+	\node[holder,above of=1000] (1010) {};
+	\node[holder,above of=1010] (1020) {};
+	\node[holder,above of=1020] (1030) {};
+	\node[data,above of=1000,minimum height=6em,yshift=0.75em] (1000d) {$\bot$};
+
+	%Level 0 edges
+	\foreach \i/\j in {0/1,1/2,2/3,3/4,4/5,5/6,6/7,7/8,8/9,9/10}{
+	  \draw[p] (\i01.center) -> (\j00);
+	}
+	
+	%Level 1 edges
+	\foreach \i/\j in {0/2,2/4,4/6,6/8,8/10}{
+	  \draw[p] (\i11.center)-> (\j10);
+	}
+	
+	%Level 2 edges
+	\foreach \i/\j in {0/4,4/8,8/10}{
+	  \draw[p] (\i21.center)-> (\j20);
+	}
+	
+	%Level 3 edges
+	\foreach \i/\j in {0/8,8/10}{
+	  \draw[p] (\i31.center)-> (\j30);
+	}
+      \end{tikzpicture}
+      \caption{Linked list vs.\ skip lists}
+    \end{figure}
+
+
+  \subsection{\cite{CP18} Construction}
+  \subsection{The Sloth Hash Function}
+    \begin{enumerate}
+      \item \cite{LW17}
+      \item Assumptions: computing square-root requires logarithmically many squarings
+    \end{enumerate}
+
+
+\section{Warm-up: PoSW from Skip Lists}
+  We start with basic construction that uses an ensemble of PRPs and the skip list, and then show that it is a proof of sequential work.
+  
+  \subsection{Construction}
+    The construction takes as input a time parameter $N=2^n$ for $n\in\NN$ and two statistical parameters $w,t\in\NN$. We assume an ensemble of random permutations $P:=\seq{P_0}{P_n}$ with $P_i:\str[(i+1)\cdot w]\to\str[(i+1)\cdot w]$ sampled uniformly at random from $\sP_{(i+1)\cdot w}$, the set of permutations on $(i+1)\cdot w$-bit-long strings in $\str$. Let $P^{-1}$ denote the ``inverse'' oracle of $P$.
+    \begin{enumerate}
+      \item The verifier sends the statement $\chi\in\str[(n+1)\cdot w]$ to the prover
+      \item The prover computes the sequence of states $\seq{\sigma_0}{\sigma_N}$ and sets $\phi=\sigma_N$ and $\phi_p=\seq{\sigma_0}{\sigma_N}$. (We will see later how one can trade-off space for time just like in \cite{CP18}.)
+      \item The verifier, on receipt of $\phi$, challengers the prover on $t$ random leaf nodes $\seq{\gamma_1}{\gamma_t}$, where $\gamma_i\in[N]$.
+    \end{enumerate}
+    
+    \begin{definition}
+      An adversary $\AA$, with oracle access to $P$ and $P^{-1}$, on an input $x\in\str[w]$ outputs a $P$-sequence $\seq{x_0}{x_s}$ of length $s$ if 
+	\begin{enumerate}
+	  \item $x\subset x_0$, where $\subset$ denotes that $x$ is a continuous substring of $x_0$ (\ie, $x_0$ is of the form $a\circ x \circ b$ for some $a,b\in\str$).
+	  \item For all $j\in[0,s-1]$, there exists some $i\in[0,n]$ such that $P_i(x_j)\subset_w x_{j+1}$, where $\subset_w$ denotes that some continuous substring of $P_i(x_j)$ of length $w$ is present as a continuous subsequence of $x_{j+1}$.
+	\end{enumerate}
+    \end{definition}
+    
+    \begin{claim}
+      The probability that an adversary outputs a $P$-sequence of length $s$ making (strictly) less than $s$ sequential queries is 
+	\[2q\cdot\frac{Q+\sum_{i=0}^s \size{x_i^2}}{2^{(t-1)w}},\]
+      where $q$ denotes the total number of queries that the adversary is allowed to make to the random permutations and $Q$ their total length.
+    \end{claim}
+    \begin{proof}[``Proof'']
+      The three ways that $\AA$ can output a $P$-sequence $\seq{x_0}{x_s}$ making less than $s$ queries are given below.
+	\begin{enumerate}
+	  \item Lucky guess of a value of $P$: for some $i\in[s],j\in[n]$ it holds that $P(x_i)\subset_w x_{i+1}$ and the adversary \TE{did not} make the query $P(x_i)$. As $P$ is random, the probability of this event can be upper-bounded by 
+	    \[q\cdot\frac{\sum_{i=0}^s \size{x_i^2}}{2^{(t-1)w}}?\]
+	  \item Collision: The $x_j$s were not computed sequentially. That is it holds that for some $0\leq j< k\leq s-1$ a query $x_j$ is made in round $j$ and a query $x_k$ is made in round $k$ where $P_*(x_j)\subset_w x_k$. Again, since $P$ is uniformly random, the probability is 
+	    \[q\cdot\frac{Q^2}{2^{(t-1)w}}?\]
+	\end{enumerate}
+
+    \end{proof}
+
+
+
+
+    \begin{figure}
+      \begin{tikzpicture}[
+	state/.style={draw,thick,minimum width=2em,minimum height=2em},
+	dstate/.style={draw,dotted,minimum width=2em,minimum height=2em},
+	p/.style={->,thick},
+	P/.style={-,thick,red,dashed},
+	node distance=2em]
+	%State 0
+	\node[state] (00) {$\chi_0$};
+	\node[state,above of=00] (01) {$\chi_1$};
+	\node[state,above of=01] (02) {$\chi_2$};
+	\node[state,above of=02] (03) {$\chi_3$};
+	
+	%State 1
+	\node[state,right of=00,xshift=2em] (10) {$\sigma_{1,0}$};
+	\node[dstate,above of=10] (11) {};
+	\node[dstate,above of=11] (12) {};
+	\node[dstate,above of=12] (13) {};
+	
+	%State 000010
+	\node[state,right of=10,xshift=2em] (20) {$\sigma_{2,0}$};
+	\node[state,above of=20] (21) {$\sigma_{2,1}$};
+	\node[dstate,above of=21] (22) {};
+	\node[dstate,above of=22] (23) {};
+	
+	%State 3
+	\node[state,right of=20,xshift=2em] (30) {$\sigma_{3,0}$};
+	\node[dstate,above of=30] (31) {};
+	\node[dstate,above of=31] (32) {};
+	\node[dstate,above of=32] (33) {};
+	
+	%State 4
+	\node[state,right of=30,xshift=2em] (40) {$\sigma_{4,0}$};
+	\node[state,above of=40] (41) {$\sigma_{4,1}$};
+	\node[state,above of=41] (42) {$\sigma_{4,2}$};
+	\node[dstate,above of=42] (43) {};
+
+	%State 5
+	\node[state,right of=40,xshift=2em] (50) {$\sigma_{5,0}$};
+	\node[dstate,above of=50] (51) {};
+	\node[dstate,above of=51] (52) {};
+	\node[dstate,above of=52] (53) {};
+	
+	%State 6
+	\node[state,right of=50,xshift=2em] (60) {$\sigma_{6,0}$};
+	\node[state,above of=60] (61) {$\sigma_{6,1}$};
+	\node[dstate,above of=61] (62) {};
+	\node[dstate,above of=62] (63) {};
+	
+	%State 7
+	\node[state,right of=60,xshift=2em] (70) {$\sigma_{7,0}$};
+	\node[dstate,above of=70] (71) {};
+	\node[dstate,above of=71] (72) {};
+	\node[dstate,above of=72] (73) {};
+	
+	%State 8
+	\node[state,right of=70,xshift=2em] (80) {$\sigma_{8,0}$};
+	\node[state,above of=80] (81) {$\sigma_{8,1}$};
+	\node[state,above of=81] (82) {$\sigma_{8,2}$};
+	\node[state,above of=82] (83) {$\sigma_{8,3}$};
+	
+	%Level 0 edges
+	\foreach \i/\j in {0/1,1/2,2/3,3/4,4/5,5/6,6/7,7/8}{
+	  \draw[p] (\i0) -> (\j0);
+	}
+	
+	%Level 1 edges
+	\foreach \i/\j in {0/2,2/4,4/6,6/8}{
+	  \draw[p] (\i1)-> (\j1);
+	}
+	
+	%Level 2 edges
+	\foreach \i/\j in {0/4,4/8}{
+	  \draw[p] (\i2)-> (\j2);
+	}
+	
+	%Level 3 edges
+	\foreach \i/\j in {0/8}{
+	  \draw[p] (\i3)-> (\j3);
+	}
+	
+	%Permutation P_w
+	\foreach \i in {1,3,5,7}{
+	  \draw[P] ([xshift=-1em]\i0.north west) -> ([xshift=-1em]\i0.south west);
+	}
+	
+	%Permutation P_2w
+	\foreach \i in {2,6}{
+	  \draw[P] ([xshift=-1em]\i1.north west) -> ([xshift=-1em]\i0.south west);
+	}
+	
+	%Permutation P_3w
+	\draw[P] ([xshift=-1em]42.north west) -> ([xshift=-1em]40.south west);
+	
+	%Permutation P_4w
+	\draw[P] ([xshift=-1em]83.north west) -> ([xshift=-1em]80.south west);
+      \end{tikzpicture}
+      \caption{Schematic diagram for $N=8$. The statement is of the form $\chi=\chi_0\circ\cdots\circ\chi_3$ and is the initial state $\sigma_0$ in the construction. The proof, $\phi$, is the final state $\sigma_8=\sigma_0\circ\cdots\circ\sigma_3$. The vertical lines represent an application of the permutation $P$ with the length indicative of the exact permutation: e.g., the final red line denotes an application of $P_4$ to the input $\chi_3\circ\sigma_{4,2}\circ\sigma_{6,1}\circ\sigma_{7,0}$.}
+    \end{figure}
+
+  
+    \begin{sidewaysfigure}
+    \centering
+    \caption{The red and blue box represent two (independent) challenges $c_1=6$ and $c_2=13$. The red (resp., blue) path is the shortest path from $0$ to $16$ that goes through $6$ (resp., $13$). The (sub)states with red (resp., blue) bullets are required for the verification of the red (resp., blue) path. The shaded boxes are recomputed during the verification.}
+    \begin{tikzpicture}[
+      rotate=90,
+      node distance=3em,
+      state/.style={draw,thick,minimum width=1em,minimum height=3em},
+      cstate/.style={draw,thick,minimum width=1em,minimum height=3em,fill=red},
+      restate/.style={draw,thick,minimum width=1em,minimum height=3em,pattern=north west lines, pattern color=red},
+      p/.style={->,thick}]
+      %State 0
+      \node[state] (00) {};
+      \node[state,above of=00] (01) {};
+      \node[state,above of=01] (02) {};
+      \node[state,above of=02] (03) {};
+      \node[state,above of=03] (04) {};
+      
+      %State 1
+      \node[state,right of=00] (10) {};
+      
+      %State 00010
+      \node[state,right of=10] (20) {};
+      \node[state,above of=20] (21) {\rbullet};
+      
+      %State 3
+      \node[state,right of=20] (30) {\rbullet};
+      
+      %State 4
+      \node[restate,right of=30] (40) {};
+      \node[restate,above of=40] (41) {};
+      \node[restate,above of=41] (42) {};
+
+      %State 5
+      \node[state,right of=40] (50) {\rbullet};
+      
+      %State 6
+      \node[cstate,right of=50] (60) {};
+      \node[cstate,above of=60] (61) {};
+      
+      %State 7
+      \node[restate,right of=60] (70) {};
+      
+      %State 8
+      \node[restate,right of=70] (80) {};
+      \node[restate,above of=80] (81) {};
+      \node[restate,above of=81] (82) {};
+      \node[restate,above of=82] (83) {};
+      
+      %State 9
+      \node[state,right of=80] (90) {};
+      
+      %State 10
+      \node[state,right of=90] (100) {};
+      \node[state,above of=100] (101) {};
+      
+      %State 11
+      \node[state,right of=100] (110) {};
+      
+      %State 12
+      \node[state,right of=110] (120) {};
+      \node[state,above of=120] (121) {};
+      \node[state,above of=121] (122) {\rbullet};
+
+      %State 13
+      \node[state,right of=120] (130) {};
+      
+      %State 14
+      \node[state,right of=130] (140) {};
+      \node[state,above of=140] (141) {\rbullet};
+      
+      %State 15
+      \node[state,right of=140] (150) {\rbullet};
+      
+      %State 16
+      \node[state,right of=150] (160) {};
+      \node[state,above of=160] (161) {};
+      \node[state,above of=161] (162) {};
+      \node[state,above of=162] (163) {};
+      \node[state,above of=163] (164) {};
+      
+      %\Labels
+      \foreach \i in {0,...,16}{
+	\node[below of=\i0] {\i};
+      }
+      
+      %Level 0 edges
+      \foreach \i/\j in {0/1,1/2,2/3,3/4,4/5,5/6,6/7,7/8,8/9,9/10,10/11,11/12,12/13,13/14,14/15,15/16}{
+	\draw[p] (\i0) -> (\j0);
+      }
+      
+      %Level 1 edges
+      \foreach \i/\j in {0/2,2/4,4/6,6/8,8/10,10/12,12/14,14/16}{
+	\draw[p] (\i1)-> (\j1);
+      }
+      
+      %Level 2 edges
+      \foreach \i/\j in {0/4,4/8,8/12,12/16}{
+	\draw[p] (\i2)-> (\j2);
+      }
+      
+      %Level 3 edges
+      \foreach \i/\j in {0/8,8/16}{
+	\draw[p] (\i3)-> (\j3);
+      }
+      
+      \draw[p] (04) -> (164);
+      
+      %Shortest path for red
+      \foreach \i/\j in {02/42,41/61,61/81,83/163}{
+	\draw[p,re0] (\i) -> (\j);
+      }
+      
+    \end{tikzpicture}
+     \begin{tikzpicture}[
+      rotate=90,
+      node distance=3em,
+      state/.style={draw,thick,minimum width=1em,minimum height=3em},
+      cstate/.style={draw,thick,minimum width=1em,minimum height=3em,fill=blue},
+      restate/.style={draw,thick,minimum width=1em,minimum height=3em,pattern=north west lines, pattern color=blue},
+      p/.style={->,thick}]
+      
+      %State 0
+      \node[state] (00) {};
+      \node[state,above of=00] (01) {};
+      \node[state,above of=01] (02) {};
+      \node[state,above of=02] (03) {};
+      \node[state,above of=03] (04) {};
+      
+      %State 1
+      \node[state,right of=00] (10) {};
+      
+      %State 00010
+      \node[state,right of=10] (20) {};
+      \node[state,above of=20] (21) {};
+      
+      %State 3
+      \node[state,right of=20] (30) {};
+      
+      %State 4
+      \node[state,right of=30] (40) {};
+      \node[state,above of=40] (41) {};
+      \node[state,above of=41] (42) {\bbullet};
+
+      %State 5
+      \node[state,right of=40] (50) {};
+      
+      %State 6
+      \node[state,right of=50] (60) {};
+      \node[state,above of=60] (61) {\bbullet};
+      
+      %State 7
+      \node[state,right of=60] (70) {\bbullet};
+      
+      %State 8
+      \node[restate,right of=70] (80) {};
+      \node[restate,above of=80] (81) {};
+      \node[restate,above of=81] (82) {};
+      \node[restate,above of=82] (83) {};
+      
+      %State 9
+      \node[state,right of=80] (90) {};
+      
+      %State 10
+      \node[state,right of=90] (100) {};
+      \node[state,above of=100] (101) {\bbullet};
+      
+      %State 11
+      \node[state,right of=100] (110) {\bbullet};
+      
+      %State 12
+      \node[restate,right of=110] (120) {};
+      \node[restate,above of=120] (121) {};
+      \node[restate,above of=121] (122) {};
+
+      %State 13
+      \node[state,right of=120,fill=blue] (130) {};
+      
+      %State 14
+      \node[restate,right of=130] (140) {};
+      \node[restate,above of=140] (141) {};
+      
+      %State 15
+      \node[restate,right of=140] (150) {};
+      
+      %State 16
+      \node[state,right of=150] (160) {};
+      \node[state,above of=160] (161) {};
+      \node[state,above of=161] (162) {};
+      \node[state,above of=162] (163) {};
+      \node[state,above of=163] (164) {};
+      
+      %\Labels
+      \foreach \i in {0,...,16}{
+	\node[below of=\i0] {\i};
+      }
+      
+      %Level 0 edges
+      \foreach \i/\j in {0/1,1/2,2/3,3/4,4/5,5/6,6/7,7/8,8/9,9/10,10/11,11/12,12/13,13/14,14/15,15/16}{
+	\draw[p] (\i0) -> (\j0);
+      }
+      
+      %Level 1 edges
+      \foreach \i/\j in {0/2,2/4,4/6,6/8,8/10,10/12,12/14,14/16}{
+	\draw[p] (\i1)-> (\j1);
+      }
+      
+      %Level 2 edges
+      \foreach \i/\j in {0/4,4/8,8/12,12/16}{
+	\draw[p] (\i2)-> (\j2);
+      }
+      
+      %Level 3 edges
+      \foreach \i/\j in {0/8,8/16}{
+	\draw[p] (\i3)-> (\j3);
+      }
+      
+      \draw[p] (04) -> (164);
+      
+      
+      %Shortest path for blue
+      \foreach \i/\j in {03/83,82/122,120/130,130/140,141/161}{
+	\draw[p,blue] (\i) -> (\j);
+      }
+    \end{tikzpicture}
+  \end{sidewaysfigure}
+  \subsection{Trade-off}
+\section{Main Construction}
+  
+  
+\bibliographystyle{alpha}
+\bibliography{Skiplist.bib}
+\end{document}
+
+  

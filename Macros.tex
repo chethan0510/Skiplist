@@ -1,0 +1,1032 @@
+%BOF %Refer to Chronicle.tex for the changes introduced in the Macros.tex file.
+% \input{../../../Common/Chronicle.tex}
+% \input{Chronicle.tex}
+
+%To do: 
+% Accents causing problems: \v \c
+
+%BEGIN
+%COMMAND STRUCTURE: capital letters are types and small letters are modifiers 
+%\eg \VX denotes a random variable X, whereas \v\VX denotes a vector of random variables \VX[1]...\VX[n]
+% A: algorithm; a: adversary
+% B b
+% C: complexity class c: circuit
+% D d 
+% E: Event; e: 
+% F f: function 
+% G: Graph g: group?
+% H h 
+% I i 
+% J j 
+% K k 
+% L: Language; l 
+% M: matrix; m:
+% N n 
+% % O o: operator
+% P p: polynomial
+% Q q
+% R: reference; r 
+% S: sample space/distribution/set; s: simulator 
+% T: Text type; t:math text type
+% U u 
+% V: Vector v: random variable
+% W w 
+% X x 
+% Y y 
+% Z z
+% Supscripts/superscripts
+% @ is the superscript/subscript operator
+%\A: adversary 
+%\
+% 
+% 
+% 
+% 
+%END
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%PACKAGES
+%BEGIN
+%Base packages
+\usepackage[utf8]{inputenc}
+\usepackage[normalem]{ulem}
+% \usepackage{at}
+
+%Font packages
+\usepackage{amssymb,amsmath,wasysym,dsfont,bm,relsize,amsbsy}%ntheorem
+% \usepackage{lmodern,charter,mathptmx}
+\usepackage{mathtools,bigints}%mathrsfs
+% \usepackage[cal=euler,calscaled=.96]{mathalfa}
+\usepackage{fancyvrb}
+\usepackage{authblk}
+\usepackage{enumerate}
+\usepackage{xparse}
+\ifx \slide \undefined
+  \usepackage[usenames,dvipsnames,svgnames,table]{xcolor}
+  \usepackage{paralist}
+\else
+%   \usepackage[orientation=portrait, size=a0, scale=1.4]{beamerposter}
+%   \usepackage{texpos}
+\fi
+\usepackage[boxed]{algorithm}
+\usepackage{algpseudocode,algorithmicx}
+\usepackage{boxedminipage}
+\usepackage{etoolbox}
+\usepackage{xspace,xargs,xstring}
+% \usepackage{nomencl}  
+\usepackage{color,framed,mdframed}
+\usepackage{caption,subcaption}
+\usepackage{appendix,booktabs,array,multirow}
+\usepackage{pgffor}
+\usepackage{graphicx}
+\usepackage{marvosym}
+\usepackage{pdfpages}
+\usepackage[export]{adjustbox}
+
+
+\usepackage{pgfplots}
+% \useoutertheme{infolines}
+% \usepackage{footmisc}
+
+% \usepackage{memoir}
+% \usepackage{breqn}
+
+%Graphics packages
+\usepackage{tikz}
+\usetikzlibrary{arrows,chains,matrix,positioning,scopes,decorations.markings,patterns,shapes.callouts,snakes,shapes.multipart,decorations.pathreplacing,calc,shapes.geometric,backgrouds}
+% \DeclareMathAlphabet{\mathpzc}{OT1}{pzc}{m}{it}
+
+%Theorems/definitions
+\ifx \lncs \undefined
+  \usepackage{amsthm}
+%   \let\proof\relax 
+  \newtheorem{theorem}{Theorem}
+  \newtheorem*{theorem*}{Theorem}
+  \newtheorem{lemma}{Lemma}
+  \newtheorem{Xlemma}{Lemma}[theorem]
+  \newtheorem*{result}{Main Result}
+  \newtheorem{corollary}{Corollary}
+  \newtheorem*{corollary*}{Corollary}
+  \newtheorem{observation}{Observation}
+  \newtheorem{claim}{Claim}[theorem]
+  \newtheorem{conjecture}{Conjecture}
+
+  %Inline theorems
+  \makeatletter
+  \newenvironment{ilemma}[1][]
+    {\enskip\refstepcounter{lemma}\textbf{Lemma~\thelemma} \ifthenelse{\equal{#1}{}}{}{~(#1)}.\space\itshape}% \begin{shortthm}
+  \makeatother
+  
+  \theoremstyle{definition}
+  \newtheorem{definition}{Definition}
+  \newtheorem{remark}{Remark}
+%   \newtheorem{Comment}{Comment}
+  \newtheorem{assumption}{Assumption}
+  \newtheorem{example}{Example}
+  
+  %Inline definitions
+  \makeatletter
+  \newenvironment{idefinition}[1][]
+    {\enskip\refstepcounter{definition}\textbf{Definition~\thedefinition} \ifthenelse{\equal{#1}{}}{}{~(#1)}.\space\itshape}% \begin{shortthm}
+  \makeatother
+  
+%   \let\endproof\relax
+  
+%   \theoremstyle{nonumberplain}
+%   \newtheorem{handnum-theorem}{Theorem}
+\fi
+
+\let\oldparagraph\paragraph   %% otherwise paragraph headings are drowned by all the \bf stuff around them
+\renewcommand{\paragraph}[1]{\oldparagraph{\bf #1}}
+% \let\oldundottedi\i
+% \renewcommand{\i}{\textit{\oldundottedi}}
+
+\newfloat{construction}{t!}{lop}
+\floatname{construction}{Construction}
+\newfloat{game}{t!}{lop}
+\floatname{game}{Game}
+
+% \newtheorem*{theorem*}{Theorem}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%END
+
+%To-do: move to xparse
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%TEXT-TYPES \T, \t
+%BEGIN
+\newcommandx{\TA}[1]{\textrm{\sf #1}} %Algorithm
+\newcommandx{\TB}[1]{\textrm{\bf #1}} %Bold 
+\newcommandx{\TK}[1]{\textrm{\tt #1}} %Keys, events, procedures/algorithms
+\newcommandx{\TE}[1]{\textit{#1}} %Emphasised 
+\newcommandx{\TC}[1]{\text{\smaller #1}} %Characteristic
+\newcommandx{\TP}[1]{#1} %Plain
+\newcommandx{\TS}[1]{\text{#1}} %Straight
+\newcommandx{\TEB}[1]{{\textbf{\textit #1}}} %Bold and italic: for theorems
+\newcommandx{\TR}[1]{#1} %Text used for references
+
+%Math text-types
+\newcommandx{\tA}[1]{\mathsf{#1}} %Algorithm
+\newcommandx{\tB}[1]{\boldsymbol{#1}} %Highlighted 
+\newcommandx{\tK}[1]{\mathtt{#1}} %Keys
+\newcommandx{\tE}[1]{\mathit{#1}} %Emphasised
+\newcommandx{\tC}[1]{\mathsf{#1}} %Characteristic
+\newcommandx{\tO}[1]{\mathds{#1}} %Operator
+\newcommandx{\tF}[1]{#1} %Function
+\newcommandx{\tS}[1]{\mathcal{#1}} %sample space
+%END
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%CORE COMMANDS: series of commands \AA...\AZ generated later.
+%BEGIN
+\newcommandx{\Algorithm}[1]{\TA{#1}\xspace} %Algorithm \A
+\newcommandx{\circuit}[1]{\TA{#1}\xspace} %Circuit \c
+\newcommandx{\set}[1]{\tS{#1}\xspace} %Set \s
+\newcommandx{\Distribution}[1]{\tS{#1}\xspace} %Sample space/Distribution \D
+\newcommandx{\Class}[1]{\TA{#1}\xspace} %Complexity Class \C
+\newcommandx{\Language}[1]{\TC{#1}\xspace} %Language \L
+\newcommandx{\Graph}[1]{\tF{#1}\xspace} %Graph $\G
+\newcommandx{\function}[1]{\tF{#1}\xspace} %Function \f
+\newcommandx{\polynomial}[1]{\tF{#1}\xspace} %polynomial \p 
+\newcommandx{\variable}[1]{\tF{#1}\xspace} %Random variable \v
+\newcommandx{\Event}[1]{\tF{#1}\xspace} %Event \E
+\newcommandx{\Matrix}[1]{\tB{#1}\xspace} %Matrix \M
+\newcommandx{\Vector}[1]{\tB{#1}\xspace} %Vector \V
+
+%Declare batches: automate later
+\newcommandx{\DeclareAlgorithm}[1]{%Shorthands
+  \expandafter\def\csname A#1\endcsname{\Algorithm{#1}} %Algorithm
+}
+\newcommandx{\DeclareAlgorithms}{\forcsvlist{\DeclareAlgorithm}}
+
+\newcommandx{\Declarecircuit}[1]{%Shorthands
+  \expandafter\def\csname c#1\endcsname{\circuit{#1}} %circuit
+}
+\newcommandx{\Declarecircuits}{\forcsvlist{\Declarecircuit}}
+
+\newcommandx{\Declareset}[1]{%Shorthands
+  \expandafter\def\csname s#1\endcsname{\set{#1}} %Set
+}
+\newcommandx{\Declaresets}{\forcsvlist{\Declareset}}
+
+\newcommandx{\DeclareDistribution}[1]{%Shorthands
+  \expandafter\def\csname D#1\endcsname{\Distribution{#1}} %Distribution
+}
+\newcommandx{\DeclareDistributions}{\forcsvlist{\DeclareDistribution}}
+
+\newcommandx{\DeclareClass}[1]{%Shorthands
+  \expandafter\def\csname C#1\endcsname{\Class{#1}} %Class
+}
+\newcommandx{\DeclareClasses}{\forcsvlist{\DeclareClass}}
+
+\newcommandx{\DeclareLanguage}[1]{%Shorthands
+  \expandafter\def\csname L#1\endcsname{\Language{#1}} %Language
+}
+\newcommandx{\DeclareLanguages}{\forcsvlist{\DeclareLanguage}}
+
+\newcommandx{\DeclareGraph}[1]{%Shorthands
+  \expandafter\def\csname G#1\endcsname{\Graph{#1}} %Graph
+}
+\newcommandx{\DeclareGraphs}{\forcsvlist{\DeclareGraph}}
+
+\newcommandx{\Declarefunction}[1]{%Shorthands
+  \expandafter\def\csname f#1\endcsname{\function{#1}} %function
+}
+\newcommandx{\Declarefunctions}{\forcsvlist{\Declarefunction}}
+
+\newcommandx{\Declarepolynomial}[1]{%Shorthands
+  \expandafter\def\csname p#1\endcsname{\polynomial{#1}} %polynomial
+}
+\newcommandx{\Declarepolynomials}{\forcsvlist{\Declarepolynomial}}
+
+\newcommandx{\Declarevariable}[1]{%Shorthands
+  \expandafter\def\csname v#1\endcsname{\variable{#1}} %variable
+}
+\newcommandx{\Declarevariables}{\forcsvlist{\Declarevariable}}
+
+\newcommandx{\DeclareEvent}[1]{%Shorthands
+  \expandafter\def\csname E#1\endcsname{\Event{#1}} %Event
+}
+\newcommandx{\DeclareEvents}{\forcsvlist{\DeclareEvent}}
+
+\newcommandx{\DeclareMatrix}[1]{%Shorthands
+  \expandafter\def\csname M#1\endcsname{\Matrix{#1}} %Matrix
+}
+\newcommandx{\DeclareMatrices}{\forcsvlist{\DeclareMatrix}}
+
+\newcommandx{\DeclareVector}[1]{%Shorthands
+  \expandafter\def\csname V#1\endcsname{\Vector{#1}} %Vector
+}
+\newcommandx{\DeclareVectors}{\forcsvlist{\DeclareVector}}
+
+\newcommandx{\DeclareModel}[1]{%Shorthands
+  \expandafter\def\csname M#1\endcsname{\Model{#1}} %Matrix
+}
+\newcommandx{\DeclareModels}{\forcsvlist{\DeclareModel}}
+
+
+%Batch
+\DeclareAlgorithms{K,G,D,M,A,C,B,R,I,F,S,Z,V,X,U,P,R,O,L,iO,H,W,w,PRG,PRF}
+\Declarecircuits{C,S,H,h,P,V,T,A}
+\DeclareGraphs{G,S,C,K,P,T,H,SC}
+\DeclareMatrices{A,K,B,C,M,H,G}
+\DeclareVectors{I,k,r,x,y,e,d,a,b,c,w,v,u,q,z,X,A,B,s,P}
+\DeclareDistributions{X,V,H,Y,Z,R,K,F,W,S,P,M,C,D,G,A,U}
+\Declaresets{R,S,Z,N,A,B,T,X,Y,V,C,H,F,G,E,P,I,K,M,L,D,U}
+\DeclareEvents{B,C,D,E,F,G,S,V,W,A}
+\Declarevariables{F,T,W,X,I,A,B,G,V,Y,U,H,Z}
+\Declarefunctions{f,m,a,r,p,b,g,h,c,s,e,t,w}
+\Declarepolynomials{p,q,t}
+\DeclareClasses{P,NP,AM,SZK,IP,AM,MA,RP,ZPP,PCP,BPP,ZK,CZK,SZK,PZK,NC,AC,L,NL,TIME,PTIME,NTIME,EXPTIME,NEXPTIME,SPACE,NSPACE,PSPACE,AT,ST,S,CS,T}
+\DeclareLanguages{L,A,B,GNI,GI,SAT,CSAT}
+\Declarefunctions{RSA,LSB,Rabin,DLP,DES,Auto,Iso,Rev,GGM}
+% \DeclareModels{}
+
+
+%Modifiers: suffixes/prefixes
+\newcommandx{\script}[2][1=,2=]{_{#1}^{#2}} %subscript/superscript, later transformed to @
+\renewcommandx{\a}{\ddot} %Adversary
+\renewcommandx{\S}{\bar} %Simulator
+\renewcommandx{\t}{\hat} %target
+\newcommandx{\M}{\tilde} %target
+\newcommandx{\C}{\bar} %set compliment/bit compliment
+\newcommandx{\N}{\neg} %logical negation
+% \newcommandx{\overbar}[1]{\mkern 1.5mu\overline{\mkern-1.5mu#1\mkern-1.5mu}\mkern 1.5mu}
+\newcommandx{\I}{\script[][-1]} %inverse
+\newcommandx{\T}{\script[][T]} %transpose of a matrix
+\newcommandx{\s}{\script[][*]} %starred
+\newcommandx{\p}{\script[][']} %prime
+\renewcommandx{\P}{\script[][+]} %Plus
+\newcommandx{\V}{\tB} %vector
+\newcommandx{\pars}[1][1=1]{%parameters
+  \ifthenelse{\equal{#1}{1}}
+    {(\cdot)} %(.)
+    {(\cdot\foreach\n in {2,...,#1}{,\cdot})} %(...)
+}
+\newcommandx{\parS}[1][1=1]{%parameters
+  \ifthenelse{\equal{#1}{1}}
+    {[\cdot]} %.)
+    {[\cdot\foreach\n in {2,...,#1}{,\cdot}} %(...)
+}
+
+%Misc
+\newcommandx{\fl}[2][1=,2=]{\function[#1][#2]{\ell}} %length function
+\newcommandx{\pl}[2][1=,2=]{\polynomial[#1][#2]{\ell}} %polynomial l(.)
+\newcommandx{\LTSAT}{\L{3SAT}}
+\newcommandx{\LGTC}{\L{G3C}}
+
+%END
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%MATH/CS COMMANDS
+%BEGIN
+\newcommandx{\seq}[3][1={,}]{#2#1\ldots#1#3} %A sequence of form a,...,b or in general a op ... op b
+\DeclarePairedDelimiter{\Set}{\{}{\}} %Of the form {a}
+\newcommandx{\Seq}[2]{\Set{\seq{#1}{#2}}} %A sequence of the form {a,...,b}
+\newcommandx{\str}[1][1=*]{\Set{0,1}\script[][#1]} %String
+
+%Logicical
+\newcommandx{\AND}{\TC{AND}\xspace}
+\newcommandx{\NAND}{\TC{NAND}\xspace}
+\newcommandx{\OR}{\TC{OR}\xspace}
+\newcommandx{\NOT}{\TC{NOT}\xspace}
+\newcommandx{\XOR}{\TC{XOR}\xspace}
+
+\newcommandx{\YES}{\TC{YES}\xspace}
+\newcommandx{\NO}{\TC{NO}\xspace}
+\newcommandx{\ACCEPT}{\TC{ACCEPT}\xspace} %Turing machine: accept
+\newcommandx{\REJECT}{\TC{REJECT}\xspace} %Turing machine: reject
+
+\newcommandx{\HALT}{\TC{HALT}\xspace}
+\newcommandx{\state}{\TA{state}\xspace}
+\newcommandx{\TRUE}{\TC{TRUE}\xspace}
+\newcommandx{\FALSE}{\TC{FALSE}\xspace}
+
+\newcommandx{\READ}[2][1=,2=]{
+  \ifthenelse{\equal{#1}{}}
+  {\TC{READ}\xspace}
+  {(#1~\TC{READ}~#2)}
+}
+\newcommandx{\OUTPUT}[2][1=,2=]{
+  \ifthenelse{\equal{#1}{}}
+  {\TC{OUTPUT}\xspace}
+  {(#1~\TC{OUTPUT}~#2)}
+}
+\newcommandx{\OPERATE}[2][1=,2=]{
+  \ifthenelse{\equal{#1}{}}
+  {\TC{OP}\xspace}
+  {(#1~\TC{OP}~#2)}
+}
+
+%Relations
+\newcommandx{\red}[1][]{\leq_{#1}} %Reduced to <
+\newcommandx{\pred}{\red[\TP{P}]} %Polynomial time reduction 
+\newcommandx{\tred}{\red[\TP{T}]} %Turing reduction
+\newcommandx{\sep}[1][1=]{\nleq_{#1}} %Separation
+\newcommandx{\psep}{\sep[\TP{P}]} %Polynomial separation
+\newcommandx{\imp}[1][]{\xRightarrow{#1}} %Implies ->
+\newcommandx{\pmi}[1][]{\xLeftarrow{#1}} %Implies <-
+% \newcommandx{\sepi}{\nRightarrow} %Separation
+\newcommandx{\bij}[2][1=,2=]{\xleftrightarrow[#2]{~#1~}} %Bijective
+\newcommandx{\und}{\textit{?}} %Undecided
+\newcommandx{\cat}{\circ} %String concatenation
+\newcommandx{\cont}{\Lightning} %Contradiction
+\newcommandx{\tends}{\rightarrow} %Limit
+\newcommandx{\forsome}{\TP{ for some }} %For some
+\newcommandx{\suchthat}{\TP{ s.t. }} %Such that
+
+%Operators
+\DeclarePairedDelimiter{\card}{\lvert}{\rvert} %Cardinality of a set |.|
+\DeclarePairedDelimiter{\abs}{\lvert}{\rvert} %Absolute value |.|
+\DeclarePairedDelimiter{\size}{\lvert}{\rvert} %size/length of a string |.|
+\DeclarePairedDelimiter{\norm}{\lvert\lvert}{\rvert\rvert} %Norm
+\DeclarePairedDelimiter{\ceil}{\lceil}{\rceil}
+\DeclarePairedDelimiter{\floor}{\lfloor}{\rfloor}
+\newcommandx{\JL}[2]{\left(\dfrac{#1}{#2}\right)} %The Legendre/Jacobi symbol
+\newcommandx{\Trace}[1]{\TS{Trace}(#1)} %Trace of a linear function
+\newcommandx{\Support}[1]{\TS{Support}(#1)} %Support of a probability distribution
+\newcommandx{\CPr}[1]{\fp[c](#1)} %Collision probability
+\newcommandx{\power}[1]{\mathfrak{P}(#1)} %Power set
+\newcommandx{\oand}{\wedge} %Logical and
+% \newcommandx{\oAND}{\big\wedge} %Logical and
+\newcommandx{\oor}{\vee} %Logical or
+% \newcommandx{\oOR}{\big\vee} %Logical or
+\newcommandx{\oxor}{\oplus}
+% \newcommandx{\oXOR}{\big\oplus}
+\DeclarePairedDelimiter{\Tuple}{\langle}{\rangle} %Tuple
+\DeclarePairedDelimiter{\Encoding}{\langle}{\rangle} %encoding, say for a Turing machine
+\DeclarePairedDelimiter{\IP}{\langle}{\rangle} %Inner product, interactive protocol
+
+%Functions
+
+\RenewDocumentCommand\Pr{sO{}m}{%Probability
+  \IfBooleanTF#1%
+    {\underset{#2}{\tO{P}}\left[#3\right]}%with braces
+    {\underset{#2}{\tO{P}}[#3]}
+}
+\NewDocumentCommand\Ex{sO{}m}{%Expectation
+  \IfBooleanTF#1%
+    {\underset{#2}{\tO{E}}\left[#3\right]} %with braces
+    {\underset{#2}{\tO{E}}[#3]} 
+}
+\NewDocumentCommand\Var{sO{}m}{%Variance
+  \IfBooleanTF#1%
+    {\underset{#2}{\tO{V}}\left[#3\right]} %with braces
+    {\underset{#2}{\tO{V}}[#3]} 
+}
+% \RenewDocumentCommand\min{sO{}m}{%Minimum
+%   \IfBooleanTF#1%
+%     {\underset{#2}{\TS{min}}\left[#3\right]} %with braces
+%     {\underset{#2}{\TS{min}}[#3]} 
+% }
+% \RenewDocumentCommand\max{sO{}m}{%Maximum
+%   \IfBooleanTF#1%
+%     {\underset{#2}{\TS{max}}\left[#3\right]} %with braces
+%     {\underset{#2}{\TS{max}}[#3]} 
+% }
+% \RenewDocumentCommand\log{sm}{%Logarithm
+%   \IfBooleanTF#1%
+%     {\TS{log}(#2)} %with braces
+%     {\TS{log}\ #2}
+% }
+\newcommandx{\dif}[1][1=]{\tF{d} #1\xspace} % d
+\newcommandx{\dx}{\dif{x}} % dx
+\newcommandx{\dy}{\dif{y}} % dy
+\newcommandx{\dt}{\dif{t}} % dt
+\newcommandx{\from}[1]{\left.#1\right} %definite integral limit
+
+%Math entries
+\newcommandx{\IndC}{\stackrel{c}{\equiv}} %computationally indistinguishable
+\newcommandx{\IndS}{\stackrel{s}{\equiv}} %statistically indistinguishable
+\newcommandx{\Ind}{\equiv} %Identically distributed
+% \newcommandx{\DI}{\sim} %Identically distributed
+\newcommandx{\CD}[1][1=c]{\not\stackrel{#1}{\equiv}} %computationally distinguishable
+\newcommandx{\DIA}[1][1=]{\approx_{#1}} %Computationally identically distributed, with an error
+\newcommandx{\nDIA}[1][1=]{\not\approx_{#1}} %Computationally identically distributed, with an error
+\newcommandx{\Equiv}{\Longleftrightarrow} %equivalent to
+\newcommandx{\out}{\leftarrow} %Output <-
+\newcommandx{\tuo}{\rightarrow} %Output ->
+\newcommandx{\outr}{\xleftarrow{\scriptscriptstyle \$}} %Output of a randomised algorithm
+\newcommandx{\tuor}{\xrightarrow{\scriptscriptstyle \$}} %Output/Right of a randomised algorithm
+\newcommandx{\UR}{\xleftarrow{\scriptscriptstyle \textnormal{U}}} %Uniformly at random
+\newcommandx{\BR}[1]{\xleftarrow{\scriptscriptstyle #1}} %random with a bias #1
+\newcommandx{\Sle}{\xleftarrow{\scriptscriptstyle \$}} %Sample 
+\newcommandx{\Sample}{\sim} %Sample  
+\newcommandx{\as}{\bot} %abort symbol
+\newcommandx{\es}{\lambda} %empty string
+\renewcommand{\sp}{\lambda} %Security parameter
+\newcommandx{\usp}{1^\sp} %Unary SP
+\newcommandx{\eps}{\epsilon} %Adversarial advantage
+\newcommandx{\cross}{\times} %AxBxC
+\newcommandx{\op}{\TA{op}\xspace} %Output 
+\newcommandx{\opb}{\TA{b}\xspace} %Output bit
+\newcommandx{\oList}{\TA{list}\xspace} %Output list
+\newcommandx{\union}{\cup}
+\newcommandx{\inter}{\cap}
+\newcommandx{\Union}{\bigcup}
+\newcommandx{\Inter}{\bigcap}
+\newcommandx{\cngr}{\equiv} %congruence
+\newcommandx{\ifif}[1][1=]{\stackrel{#1}{\Longleftrightarrow}}
+\newcommandx{\defeq}{\stackrel{\TP{\tiny def}}{=}\xspace} %defined as
+\newcommandx{\iseq}{\stackrel{?}{=}\xspace} %is equal?
+\newcommandx{\tie}{\leq\script[\Delta]} %is equal?
+\newcommandx{\aseq}{\stackrel{*}{=}\xspace} %asterisk equal -- for marking equations
+% \newcommandx{\ST}{\mid} %Such that
+\newcommandx{\given}{|} %Given (conditional probability)
+\newcommandx{\ON}{:} %Conditioned on (probability)
+\newcommandx{\sends}{\longrightarrow}
+\newcommandx{\half}{\frac{1}{2}}
+\newcommandx{\third}{\frac{1}{3}}
+\newcommandx{\twothird}{\frac{2}{3}}
+\newcommandx{\fourth}{\frac{1}{4}}
+\newcommandx{\eighth}{\frac{1}{8}}
+
+%Remainder
+\newcommandx{\fOT}{\f{OT}} %oblivious transfer
+\newcommandx{\APV}[2]{(\AP,\AV)} %Prover
+% \newcommandx{\ch}[2]{\c{h}} %Circuit h
+% \newcommandx{\GSC}[2]{\G{SC}} %Superconcentrator
+\newcommandx{\vpi}[2]{\v{\pi}} %vector
+% \newcommandx{\vX}[2]{\v{X}} %pROM batch query
+% \newcommandx{\vI}[2]{\v{1}} %Indicator vector
+% \newcommandx{\Sim}[2]{\A{S}} %Simulator
+% \newcommandx{\Ser}[2]{\A{S}} %Server
+% \newcommandx{\SimC}{\A{C}\ast} %The adversarial client
+% \newcommandx{\SimS}{\A{S}\ast} %The adversarial server
+\newcommandx{\sCs}{\set{C}\ast} %The challenge client set
+\newcommandx{\sSs}{\set{S}\ast} %The challenge client set
+% \newcommandx{\Ch}[1][1=]{\A[h][#1]{C}} %The challenger
+\newcommandx{\abort}{\TK{abort}} %Abort event
+% \newcommandx{\cabort}[2]{\cEv{abort}} %Complement of abort
+\newcommandx{\fail}[2]{\TK{fail}\xspace}
+% \newcommandx{\T}[1][1=]{\Table[#1]{L}} %Default table
+% \renewcommandx{\r}{r} %randomiser
+\newcommandx{\erf}{\f{erf}} %Error function for Gaussians
+%END
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%PROVABLE SECURITY
+%BEGIN
+%Basic
+\newcommandx{\Adv}{\tB{Adv}} %Adversarial advantage
+\newcommandx{\view}{\tB{view}} %view of a party in MPC, simulation
+\newcommandx{\iView}[4][1=,2=]{\set{\view\script[#1][#2]\left(#3\right)}_{#4}} %View in MPC, simulation
+\renewcommandx{\output}{\tB{output}} %output of a party in MPC
+\newcommandx{\real}{\tB{real}} %real view/output distribution of a party in MPC
+\newcommandx{\ideal}{\tB{ideal}} %ideal view/output distribution of a party in MPC
+\newcommandx{\hybrid}{\tB{hybrid}} %hybrid view/output distribution of a party in MPC
+\renewcommandx{\Game}[1]{\mathcal{#1}} %Game
+
+
+%Security Assumptions
+\newcommandx{\Assumption}[1]{\TC{#1}\xspace} %Security assumption
+\newcommandx{\RSA}{\Assumption{RSA}}
+\newcommandx{\ADH}{\Assumption{DH}}
+\newcommandx{\ADL}{\Assumption{DL}}
+\newcommandx{\DLP}{\Assumption{DLP}}
+\newcommandx{\OMODL}{\Assumption{OM-DL}}
+\newcommandx{\DDH}{\Assumption{DDH}}
+\newcommandx{\GDH}{\Assumption{GDH}}
+\newcommandx{\OMRSA}{\Assumption{OM-RSA}}
+\newcommandx{\pOMRSA}[1]{(#1)\Assumption{-OM-RSA}}  
+\newcommandx{\OMGDH}{\Assumption{OM-GDH}}
+\newcommandx{\pOMGDH}[1]{(#1)-\Assumption{OM-GDH}}  
+\newcommandx{\SVP}{\Assumption{SVP}}
+\newcommandx{\SIVP}{\Assumption{SIVP}} 
+\newcommandx{\LWE}{\Assumption{LWE}}
+
+%Security Models
+\newcommandx{\Model}[1]{\TC{#1}\xspace} %Security model
+\newcommandx{\sID}{\Model{sID}}
+\newcommandx{\wID}{\Model{wID}}
+\newcommandx{\CCA}{\Model{CCA}}
+\newcommandx{\CPA}{\Model{CPA}}
+\newcommandx{\ROM}{\Model{ROM}} %ROM model
+\newcommandx{\pROM}{\Model{pROM}} %Parallel ROM model
+\newcommandx{\EUCMA}{\Model{EU-CMA}}
+\newcommandx{\EUNMA}{\Model{EU-NMA}}
+\newcommandx{\EUGCMA}{\Model{EU-GCMA}}
+\newcommandx{\EUIDCMA}{\Model{EU-ID-CMA}}
+\newcommandx{\EUsIDCMA}{\Model{EU-sID-CMA}}
+\newcommandx{\EUwIDCMA}{\Model{EU-wID-CMA}}
+\newcommandx{\IND}{\Model{IND}}
+\newcommandx{\SIM}{\Model{SIM}}
+\newcommandx{\INDCU}{\Model{IND-CU}}
+\newcommandx{\INDSU}{\Model{IND-SU}}
+\newcommandx{\INDCP}{\Model{IND-CP}}
+\newcommandx{\INDSP}{\Model{IND-SP}}
+\newcommandx{\SIMSP}{\Model{SIM-SP}}
+\newcommandx{\pINDSP}[1]{\Model{#1-IND-SP}}
+\newcommandx{\nINDSP}{\pINDSP{n}}
+\newcommandx{\pINDCP}[1]{\Model{#1-IND-CP}}
+\newcommandx{\nINDCP}{\pINDCP{n}}
+\newcommandx{\pSIMSP}[1]{\Model{#1-SIM-SP}}
+\newcommandx{\pSIMCP}[1]{\Model{#1-SIM-CP}}
+\newcommandx{\SIMCU}{\Model{SIM-CU}}
+\newcommandx{\SIMSU}{\Model{SIM-SU}}
+\newcommandx{\nSIMSP}{\Model{n-SIM-SP}}
+\newcommandx{\nSIMCP}{\Model{n-SIM-CP}}
+% \newcommandx{\PRECPA}{\Model{PRE-CPA}}
+% \newcommandx{\PRECCA}{\Model{PRE-CCA}}
+% \newcommandx{\PRKCPA}{\Model{PRK-CPA}}
+% \newcommandx{\PRKCCA}{\Model{PRK-CCA}}
+% \newcommandx{\sPRECPA}{\Model{sPRE-CPA}}
+% \newcommandx{\sPRECCA}{\Model{sPRE-CCA}}
+% \newcommandx{\sPRKCPA}{\Model{sPRK-CPA}}
+% \newcommandx{\sPRKCCA}{\Model{sPRK-CCA}}
+
+%Oracles
+% Oracles
+\newcommandx{\oracle}{\Algorithm{O}}
+\newcommandx{\extract}{\varepsilon} %extract oracle
+\newcommandx{\sign}{s} %Sign oracle
+% \newcommandx{\view}{v} %View Oracle
+\newcommandx{\OS}{\oracle @[\sign]} %Signing-oracle
+\newcommandx{\OK}{\oracle @[\extract]} %Key-extract oracle
+\newcommandx{\OV}{\oracle @[v]} %View-oracle
+\newcommandx{\OSE}{\oracle @[\{\sign,\extract\}]} %Both extract and signing oracle
+\newcommandx{\OSEH}{\oracle @[\{\sign,\HB{\extract}\}]} 
+\newcommandx{\ORSA}[1][1=]{\oracle @[\RSA,#1]}
+\newcommandx{\OC}{\oracle @[c]} %Challenge oracle
+\newcommandx{\OaDH}{\oracle @[\DH,\alpha]}
+\newcommandx{\ObDH}{\oracle @[\DH,\beta]}
+\newcommandx{\ODDH}{\oracle @[\DDH]}
+\newcommandx{\ODH}{\oracle @[\DH]}
+
+
+%MPC-related Commands
+\newcommandx{\TTP}{\TP{TTP}\xspace} %Trusted third party
+\newcommandx{\HbC}{\Model{HbC}} %Honest but curious
+
+% Bound on queries
+\newcommandx{\qH}{q_\O{H}}
+\newcommandx{\qG}{q_\O{G}}
+\newcommandx{\qR}{q_\O{R}}
+\newcommandx{\qC}{q_\O{c}}
+\newcommandx{\qE}{q_\extract} %Bound on extract query
+\newcommandx{\qS}{q_\sign} %Bound on sign query
+\newcommandx{\QH}[1]{q_{\O{H}_{#1}}}
+\newcommandx{\qCh}{q_\O{Ch}}
+
+%Key-type fonts
+\newcommandx{\id}{\TK{id}\xspace}
+\newcommandx{\kk}{\TK{k}\xspace}  %Normal key
+\newcommandx{\usk}{\TK{usk}\xspace} % User secret key
+\newcommandx{\PP}{\TK{pp}\xspace} %Public parameters
+\newcommandx{\param}{\TK{param}\xspace} %Public parameters, alternative
+\newcommandx{\mpk}{\TK{mpk}\xspace} %Master public key
+\newcommandx{\msk}{\TK{msk}\xspace} %Master secret key
+\newcommandx{\kp}{\TK{pk}\xspace} %Public key
+\newcommandx{\ks}{\TK{sk}\xspace} %Secret key
+\newcommandx{\kr}{\TK{rk}\xspace} %Re-encryption key
+\newcommandx{\ke}{\TK{ek}\xspace} %Evaluation key
+\newcommandx{\kt}{\TK{td}\xspace} %Trapdoor
+%END
+
+\newcommand{\hati}{\hat{\hspace{-.3ex}\textit{\i}}\xspace} %i hat
+
+
+% \newcommandx{\hati}{\hat\textit{\i}\xspace}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%COMPLEXITY THEORY
+%BEGIN
+%Complexity functions
+
+\NewDocumentCommand\BO{sm}{%Big-Oh
+  \IfBooleanTF#1%
+    {\tF{O}\left(#2\right)}%with braces
+    {\tF{O}(#2)}
+}
+\NewDocumentCommand\BOL{sm}{%Big-Oh ignoring Logarithmic factors
+  \IfBooleanTF#1%
+    {\tilde{\tF{O}}\left(#2\right)}%with braces
+    {\tilde{\tF{O}}(#2)}
+}
+\NewDocumentCommand\sO{sm}{%Small-Oh
+  \IfBooleanTF#1%
+    {\tF{o}\left(#2\right)}%with braces
+    {\tF{o}(#2)}
+}
+\NewDocumentCommand\BW{sm}{%Big-Omega
+  \IfBooleanTF#1%
+    {\Omega\left(#2\right)}%with braces
+    {\Omega(#2)}
+}
+\NewDocumentCommand\BWL{sm}{%Big-Omega ignoring Logarithmic factors
+  \IfBooleanTF#1%
+    {\tilde{\Omega}\left(#2\right)}%with braces
+    {\tilde{\Omega}(#2)}
+}
+\NewDocumentCommand\sW{sm}{%Small-omega
+  \IfBooleanTF#1%
+    {\omega\left(#2\right)}%with braces
+    {\omega(#2)}
+}
+\NewDocumentCommand\BQ{sm}{%Big-theta
+  \IfBooleanTF#1%
+    {\Theta\left(#2\right)}%with braces
+    {\Theta(#2)}
+}
+
+%Classes
+\newcommandx{\Hard}{\TP{-}\Class{H}} %-hard
+\newcommandx{\co}{\Class{co}\text{-}} %co- 
+\newcommandx{\Co}{\text{-}\Class{C}} %-complete
+\newcommandx{\poly}{\Class{poly}\xspace} %Polynomial functions
+\newcommandx{\polylog}{\Class{polylog}\xspace} %Poly-log functions
+\newcommandx{\negl}{\Class{negl}\xspace} %Negligible function
+\newcommandx{\expn}{\Class{exp}\xspace} %Exponential function
+
+%END
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%TEXT
+%BEGIN
+%Superscripts
+\newcommandx{\sth}{\script[][\tF{th}]} %nth
+\newcommandx{\sst}{\script[][\tF{st}]} %1st
+\newcommandx{\snd}{\script[][\tF{nd}]} %2nd
+\newcommandx{\srd}{\script[][\tF{rd}]} %3rd
+
+% Texts in equations
+\newcommandx{\tM}[1]{~\textit{#1}~}
+\newcommandx{\MST}{\tM{\ST}}
+\newcommandx{\ecoma}{,~}
+\newcommandx{\eand}{\textrm{~~and~~}}   %GF: I don't know what \tM did, but it made the "and" italic even in non-italic text
+\newcommandx{\eor}{\tM{or}}
+\newcommandx{\ewith}{\tM{with}}
+%\newcommandx{\espace}[1][4]{\foreach \n in {0,...,#1}{~}}
+\newcommandx{\comment}[1]{\TP{(#1)}} %comment in algorithm
+\newcommandx{\sComment}[1]{~~\TP{(#1)}} %comment with spaces -- for equations
+\newcommandx{\mComment}[2]{~~\TP{(#1 }#2\TP{)}} %comment in math mode
+
+% Etc
+\makeatletter 
+\newcommandx{\eg}{\TP{e.g}\@ifnextchar.{}{.\@}\xspace}
+\newcommandx{\Eg}{\TP{E.g}\@ifnextchar.{}{.\@}\xspace}
+\newcommandx{\wrt}{\TP{w.r.t}\@ifnextchar.{}{.\@}\xspace}
+\newcommandx{\af}{\TP{au fond}\xspace}
+\newcommandx{\etal}{\TP{et al}\@ifnextchar.{}{.\@}\xspace}
+\newcommandx{\vs}{\TP{vs}\@ifnextchar.{}{.\@}\xspace}
+\newcommandx{\etc}{\TP{etc}\@ifnextchar.{}{.\@}\xspace}
+\newcommandx{\viz}{\TP{viz}\@ifnextchar.{}{.\@}\xspace}
+\newcommandx{\ala}{\TP{\`{a} la}\xspace}
+\newcommandx{\iaof}{\TP{iff}\xspace}
+\newcommandx{\resp}{resp\@ifnextchar.{}{.\@}\xspace}
+\newcommandx{\perse}{\TP{per se}\xspace}
+\newcommandx{\df}{\TP{de facto}\xspace}
+\newcommandx{\Dr}{Dr\@ifnextchar.{}{.\@}\xspace}
+\newcommandx{\Ms}{Ms\@ifnextchar.{}{.\@}\xspace}
+\newcommandx{\Mr}{Mr\@ifnextchar.{}{.\@}\xspace}
+\newcommandx{\Mrs}{Mrs\@ifnextchar.{}{.\@}\xspace}
+\newcommandx{\Prof}{Prof\@ifnextchar.{}{.\@}\xspace}
+\newcommandx{\QED}{\TP{Q.E.D\@ifnextchar.{}{.\@}\xspace}}
+\newcommandx{\QEF}{\TP{Q.E.F\@ifnextchar.{}{.\@}\xspace}}
+\newcommandx{\st}{\TP{s.t\@ifnextchar.{}{.\@}\xspace}} %such that
+\newcommandx{\ie}{\TP{i.e}\@ifnextchar.{}{.\@}\xspace}
+\newcommandx{\cf}{\TP{cf}\@ifnextchar.{}{.\@}\xspace}
+\newcommandx{\Ie}{\TP{I.e}\@ifnextchar.{}{.\@}\xspace}
+\newcommandx{\iid}{\TP{i.i.d}\@ifnextchar.{}{.\@}\xspace}
+\makeatother
+
+%Case, type, round, flag...
+\ifx \slide \undefined
+  \newcommandx{\type}[1]{\TC{type~#1}\xspace}
+  \newcommandx{\round}[1]{\TC{round~#1}\xspace}
+  \newcommandx{\flag}{\TC{flag}\xspace}
+  \newcommandx{\Case}[1]{\TC{case~#1}\xspace}  
+\else
+  \newcommandx{\type}[1]{\TK{type~#1}\xspace}
+  \newcommandx{\round}[1]{\TK{round~#1}\xspace}
+  \newcommandx{\flag}{\TK{flag}\xspace}
+  \newcommandx{\Case}[1]{\TK{case~#1}\xspace}
+\fi
+%END
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%REFERENCES AND HYPERREFS
+%BEGIN
+%Defining backref
+\ifx \lncs \undefined
+  \usepackage[pagebackref=true,hidelinks]{hyperref}
+  \hypersetup{
+    pdfborder=0 0 0,
+    colorlinks   = true,
+    citecolor    = violet,
+    linkcolor	=  BrickRed
+%     anchorcolor [black]
+%     citecolor [green]
+%     filecolor [cyan]
+%     menucolor [red]
+%     runcolor [cyan - same as file color]
+%     urlcolor [magenta]
+%     allcolors -- use this if you want to set all links to the same color
+%     citebordercolor [rgb 0 1 0]
+%     filebordercolor [rgb 0 .5 .5]
+%     linkbordercolor [rgb 1 0 0]
+%     menubordercolor [rgb 1 0 0]
+%     urlbordercolor [rgb 0 1 1]
+%     runbordercolor [rgb 0 .7 .7]
+%     allbordercolors
+  }
+  \renewcommand*{\backref}[1]{}
+  \renewcommand*{\backrefalt}[4]{
+  \ifcase #1
+    (Not cited.)
+  \or
+    (Cited on page~#2.)
+  \else
+    (Cited on pages~#2.)
+  \fi}
+  \renewcommand*{\backrefsep}{, }
+  \renewcommand*{\backreftwosep}{ and~}
+  \renewcommand*{\backreflastsep}{ and~}
+% \else
+%   \usepackage[hidelinks]{hyperref}
+\else
+  \usepackage[breaklinks,colorlinks,citecolor=gray,linkcolor=blue]{hyperref}
+  \usepackage{breakcites} 
+\fi
+
+\newcommandx{\footnoteref}[1]{\textsuperscript{\ref{#1}}}
+
+%Blank Footnote
+\newcommandx\blfootnote[1]{
+  \begingroup
+  \renewcommand\thefootnote{}\footnote{#1}
+  \addtocounter{footnote}{-1}
+  \endgroup
+}
+ 
+%Bibliography style
+% \bibliographystyle{alpha}
+
+\newcommandx{\Ref}[1]{\TR{\ref{#1}}} %General refernce
+\newcommandx{\RP}[1]{Page~\pageref{#1}} %Page
+\newcommandx{\RE}[1]{{\text(\ref{#1})}} %Equation
+% \ifx \lncs \undefined
+   \newcommandx{\RF}[1]{\TR{Figure~\ref{#1}}} %Figure
+   \newcommandx{\RT}[1]{\TR{Theorem~\ref{#1}}} %Theorem
+%    \else\newcommandx{\RF}[1]{\TR{Figure.~\ref{#1}}} %Figure
+% 	 \newcommandx{\RT}[1]{\TR{Thm.~\ref{#1}}} %Theorem
+% \fi
+\newcommandx{\RL}[1]{\TR{Lemma~\ref{#1}}} %Lemma
+\newcommandx{\RC}[1]{\TR{Claim~\ref{#1}}} %Claim
+% \ifx \lncs \undefined
+   \newcommandx{\RCn}[1]{\TR{Construction~\ref{#1}}} %Construction
+%    \else\newcommandx{\RCn}[1]{\TR{Constr.~\ref{#1}}} %Construction
+% \fi
+\newcommandx{\Rp}[1]{\TR{Proposition~\ref{#1}}} %Proposition
+\newcommandx{\Rc}[1]{\TR{Corollary~\ref{#1}}} %Corollary
+% \ifx \lncs \undefined
+   \newcommandx{\RD}[1]{\TR{Definition~\ref{#1}}} %Definition
+%    \else\newcommandx{\RD}[1]{\TR{Def.~\ref{#1}}} %Definition
+% \fi
+\newcommandx{\RS}[1]{\TR{§\ref{#1}}} %Section
+\newcommandx{\RI}[1]{\TR{Item~\ref{#1}}} %Item
+\newcommandx{\RCh}[1]{\TR{Chapter~\ref{#1}}} %Chapter
+\newcommandx{\RR}[1]{\TR{Remark~\ref{#1}}} %Remark
+\newcommandx{\RO}[1]{\TR{Observation~\ref{#1}}} %Observation
+\newcommandx{\Rt}[1]{\TR{Table~\ref{#1}}} %Table
+\newcommandx{\RFo}[1]{\TR{Footnote~\ref{#1}}} %Footnote
+\newcommandx{\Ra}[1]{\TR{Appendix~\ref{#1}}} %Appendix
+\newcommandx{\RA}[1]{\TR{Algorithm~\ref{#1}}} %Algorithm
+\newcommandx{\RAs}[1]{\TR{Assumption~\ref{#1}}} %Assumption
+\newcommandx{\RG}[1]{\TR{Game~\ref{#1}}} %Game
+\newcommandx{\RPr}[1]{\TR{Procedure~\ref{#1}}} %Procedure
+
+%END
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%ALGORITHM
+%BEGIN
+\newcommand{\subpara}[1]{\noindent\emph{#1}}
+% \newcommand{\paragraph}[1]{\paragraph\textit{#1}}
+% \newcommand{\paragraph}[1]{\vspace{-4mm}\paragraph\textit{#1}}
+%TO-do: change the inline If
+% \algnewcommand{\IIf}[1]{\State\algorithmicif\ #1\ \algorithmicthen}
+% \algnewcommand{\EndIIf}{\unskip\ \algorithmicend\ \algorithmicif}
+% \renewcommand{\Comment}[1]{~~/\hspace{-1mm}/\TS{#1}}
+\algnewcommand{\IFor}[1]{\State\algorithmicfor\ #1\ \algorithmicdo}
+\algnewcommand{\EndIFor}{\unskip\ \algorithmicend\ \algorithmicfor}
+\algnewcommand{\IIf}[1]{\State\algorithmicif\ #1\ \algorithmicthen\ }
+\algnewcommand{\EndIIf}{\unskip\ \algorithmicend\ \algorithmicif}
+% \newcommand{\LineIf}[2]{%
+%   \State \algorithmicif\ {#1} \algorithmicthen\ {#2}
+% }
+\newcommand{\LineIfElse}[3]{%
+  \State \algorithmicif\ {#1} \algorithmicthen\ {#2}
+  \State \algorithmicelse\ {#3} \algorithmicend\ \algorithmicif
+}
+\newcommand{\CompactIfElse}[3]{%
+   \State \algorithmicif\ {#1} \algorithmicthen\ {#2} \algorithmicelse\ {#3} \algorithmicend\ \algorithmicif
+}
+\newcommandx{\algorithmicow}{\TB{otherwise}}
+% \newenvironment{experiment}[1][htb]
+%   {\renewcommand{\algorithmcfname}{Experiment}% Update algorithm name
+%    \begin{algorithm}[#1]%
+%   }{\end{algorithm}}
+
+% Swith-case
+\algnewcommand\algorithmicswitch{\TB{switch}}
+\algnewcommand\algorithmiccase{\TB{case}}
+\algnewcommand\algorithmicassert{\TB{assert}}
+\algnewcommand\Assert[1]{\State \algorithmicassert(#1)}
+\algdef{SE}[SWITCH]{Switch}{EndSwitch}[1]
+    {\algorithmicswitch\ #1\ \algorithmicdo}
+    {\algorithmicend\ \algorithmicswitch}
+\algdef{SE}[CASE]{Cases}{EndCases}[1]
+    {\algorithmiccase\ #1}
+    {\algorithmicend\ \algorithmiccase}
+%\algtext*{EndSwitch}
+%\algtext*{EndCases}
+\newcommand{\LineCase}[2]{%
+  \State \algorithmiccase\ {#1}: {#2}
+}
+\newcommandx{\continue}{\TB{continue}}
+% \renewcommandx{\break}{\TB{break}} %Caused the ``break'' probelems!
+\newcommandx{\return}{\algorithmicreturn}
+
+\makeatletter
+\def\ALG@special@indent{%
+    \ifdim\ALG@thistlm=0pt\relax
+        \hskip-\leftmargin
+    \else
+        \hskip\ALG@thistlm
+    \fi
+}
+\newcommand{\IState}[1]{\item[]\noindent\ALG@special@indent #1}
+ 
+\makeatother
+%END
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%TIKZ
+%BEGIN
+  \makeatletter
+  \newcommand{\thickhline}{%
+    \noalign {\ifnum 0=`}\fi \hrule height 1.25pt
+    \futurelet \reserved@a \@xhline
+  }
+  \newcolumntype{"}{@{\hskip\tabcolsep\vrule width 1.25pt\hskip\tabcolsep}}
+  \makeatother
+%   \newcolumntype{"}{@{\vrule width 1pt}}
+  
+  \definecolor{light-gray}{gray}{0.75}
+  \definecolor{lighter-gray}{gray}{0.85}
+  \definecolor{lightest-gray}{gray}{0.99}
+
+  \tikzstyle{rbox}=[draw, minimum size=2em, thick]
+  \tikzstyle{rbbox}=[draw, minimum size=2em,white]
+  \tikzstyle{box}=[draw, minimum size=3em, thick]
+  \tikzstyle{ibox}=[draw, minimum size=3.75em, thick]
+  \tikzstyle{mbox}=[draw, minimum size=4.5em, thick]
+  \tikzstyle{bbox}=[draw, minimum width=4.5em,minimum height=3em, thick]
+  \tikzstyle{lbox}=[draw, minimum size=6em, thick]
+  \tikzstyle{llbox}=[draw, minimum size=9em, thick]
+  \tikzstyle{blbox}=[draw, minimum width=8em, minimum height=6em, thick]
+  \tikzstyle{sbox}=[draw, minimum width=4.5em, minimum height=6em, thick]
+  \tikzstyle{buffer}=[draw,white]
+  \tikzstyle{secure} = [pin edge={to-,thick,black}]
+  \tikzstyle{public} = [pin edge={to-,thick,black,dashed}]
+  \tikzstyle{highlight} = [preaction={draw,light-gray,-,double=light-gray,double distance=4}]
+  \tikzstyle{superimpose} = [fill=white]
+  \tikzstyle{ROC} = [draw, circle, minimum size=.5cm, node distance=1.75cm]
+  
+  \tikzset{>=latex}   
+
+  \newcommand{\HCR}[1]{{\color{red!66} #1}}
+  \newcommand{\HCLR}[1]{{\color{red!66} #1}}
+  \newcommand{\HCB}[1]{{\color{blue!66} #1}}
+  \newcommand{\HCLB}[1]{{\color{blue!66} #1}}
+  \newcommand{\HCG}[1]{{\color{green!66} #1}}
+  \newcommand{\HCLG}[1]{{\color{green!50!black!66} #1}}
+  \newcommand{\DHDG}[1]{{\color{gray} #1}}
+  \newcommand{\DHB}[1]{{\color{black} #1}}
+  \newcommand{\DHG}[1]{{\color{light-gray} #1}}
+  \newcommand{\HCV}[1]{{\color{violet} #1}}
+  \newcommand{\DHLG}[1]{{\color{lightest-gray} #1}}
+  \newcommand{\hl}[1]{\colorbox{yellow}{#1}}
+  
+  \newcommand{\bdot}{\bullet}
+  \newcommand{\hdot}{\circ}
+  \newcommand{\rdot}{\HCLR{\bullet}}
+  \newcommand{\bldot}{\HCLB{\bullet}}
+  \newcommand{\gdot}{\HCLG{\bullet}}
+  \newcommand{\ldot}{\DHLG{\bullet}}
+%   \newcommand{\ndot}{\ldot\ldot\ldot\ldot}
+
+\newcommand*\circled[1]{\tikz[baseline=(char.base)]{
+            \node[shape=circle,draw,inner sep=0.1em,thick] (char) {#1};}}
+\newcommand*\pebble{\tikz[baseline=(char.base)]{
+            \node[shape=circle,draw,inner sep=0.1em,fill] (char) {1};}}
+
+\newcommand{\ntikzmark}[2]{#2\thinspace\tikz[overlay,remember picture,baseline=(#1.base)]{\node[inner sep=0pt] (#1) {};}}
+
+\newcommand{\makebrace}[3]{%
+    \begin{tikzpicture}[overlay, remember picture]
+        \draw [decoration={brace,amplitude=0.5em},decorate,thick] let \p1=(#1), \p2=(#2) in ({max(\x1,\x2)}, {\y1+0.8em}) -- node[right=0.6em] {#3} ({max(\x1,\x2)}, {\y2});
+    \end{tikzpicture}
+}
+
+\newcommand{\callout}[3]{
+  \begin{tikzpicture}[overlay, remember picture]
+    \node[overlay,rectangle callout,callout relative pointer={(-1em,-1em)},fill=blue!33, above of=#2, node distance=#3] {#1};
+  \end{tikzpicture}
+}
+\newcommand{\point}[3]{
+  \begin{tikzpicture}[overlay, remember picture]
+    \node[overlay, above of=#2, node distance=#3] (X) {#1};
+    \draw[->,blue!66] (X.south) -- ([xshift=-0.5em]#2.north);
+  \end{tikzpicture}
+}
+
+\tikzset{markplace/.style=
+ {rectangle callout,
+  fill=orange!66,
+  callout absolute pointer={#1},
+  at={#1},
+  above=1em
+  }}
+
+
+\newcommand\redout{\bgroup\markoverwith
+{\textcolor{red}{\rule[0.5ex]{2pt}{0.8pt}}}\ULon}
+
+% \tikzset{
+%   invisible/.style={opacity=0},
+%   visible on/.style={alt=#1{}{invisible}},
+%   alt/.code args={<#1>#2#3}{%
+%     \alt<#1>{\pgfkeysalso{#2}}{\pgfkeysalso{#3}} % \pgfkeysalso doesn't change the path
+%   },
+% }    
+
+%END
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%MISCELLANEOUS
+%BEGIN
+\renewcommand{\arraystretch}{1.75}
+\setcounter{secnumdepth}{3}
+% \makenomenclature
+% \renewcommand{\nomname}{List of Abbreviations}
+% \nomitemsep{2em}
+%END
+
+% \begin{inparaenum}[\itshape i\upshape)]
+%   \item 
+% \end{inparaenum}
+
+%Define '@' as subscript/superscript operator
+%IMPORTANT that this command is at the bottom.
+\begingroup
+\catcode`@=\active
+\global\let @=\script
+\endgroup
+\AtBeginDocument{\mathcode`@=\string"8000} % \string is to avoid problems with babel
+
+
+\let\subsubsectionTEMP\subsubsection
+\renewcommand{\subsubsection}[1]{\vspace{-1\smallskipamount}\subsubsectionTEMP{#1}}
+\newcommand{\spc}{\vspace{-\smallskipamount}}
